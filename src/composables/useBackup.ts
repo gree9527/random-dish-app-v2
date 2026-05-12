@@ -5,7 +5,7 @@ import { Capacitor } from '@capacitor/core'
 import type { Dish } from '../types/dish'
 import { useFilesystem } from './useFilesystem'
 
-const BACKUP_FILE_NAME = '今天吃什么-备份'
+const BACKUP_FILE_NAME = '猪猪饲养员-备份'
 
 async function buildZip(dishes: Dish[], fs: ReturnType<typeof useFilesystem>) {
   const zip = new JSZip()
@@ -65,7 +65,7 @@ export function useBackup() {
     let shared = false
     try {
       await Share.share({
-        title: '今天吃什么-备份',
+        title: '猪猪饲养员-备份',
         files: [saved.uri],
       })
       shared = true
