@@ -164,7 +164,7 @@ function prevStep() {
           class="fixed inset-0 z-50 bg-bg flex flex-col"
           @click.self="closeFullscreenStep"
         >
-          <div class="flex items-center justify-between px-5 h-16 border-b border-border/60 flex-shrink-0 bg-surface/80 backdrop-blur-md">
+          <div class="flex items-center justify-between px-5 h-16 border-b border-border/60 flex-shrink-0 bg-surface/80 backdrop-blur-md safe-top">
             <span class="text-sm font-medium text-text-muted font-serif">Step {{ (fullscreenStep ?? 0) + 1 }} / {{ dish.steps.length }}</span>
             <button @click="closeFullscreenStep" class="w-9 h-9 rounded-full bg-paper flex items-center justify-center active:scale-90 transition-transform">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>

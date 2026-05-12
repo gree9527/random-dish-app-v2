@@ -1,8 +1,13 @@
 import { onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { App } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
+
+const TAB_PAGES = ['home', 'list', 'settings']
 
 export function useSwipeBack() {
   const router = useRouter()
+  const route = useRoute()
   let startX = 0
   let startY = 0
   let startTime = 0
@@ -30,7 +35,11 @@ export function useSwipeBack() {
       dt < TIME_THRESHOLD &&
       Math.abs(dy) < Math.abs(dx) * 0.6
     ) {
-      if (window.history.length > 1) {
+      if (TAB_PAGES.includes(route.name as string)) {
+        if (Capacitor.isNativePlatform()) {
+          App.exitApp()
+        }
+      } else if (window.history.length > 1) {
         router.back()
       }
     }
