@@ -69,13 +69,15 @@ function prevStep() {
 <template>
   <div v-if="dish" class="h-full flex flex-col">
     <!-- Header -->
-    <div class="flex items-center px-5 h-16 border-b border-border/60 flex-shrink-0 bg-surface/80 backdrop-blur-md z-10">
-      <button @click="goBack" class="w-9 h-9 rounded-full bg-paper flex items-center justify-center -ml-1 active:scale-90 transition-transform">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      </button>
-      <div class="ml-3">
-        <p class="text-text-muted text-[10px] tracking-widest uppercase font-serif">Recipe Detail</p>
-        <h1 class="text-lg font-bold leading-tight truncate max-w-[200px]">{{ dish.name }}</h1>
+    <div class="flex-shrink-0 safe-top bg-surface/80 backdrop-blur-md z-10">
+      <div class="flex items-center px-5 h-16 border-b border-border/60">
+        <button @click="goBack" class="w-9 h-9 rounded-full bg-paper flex items-center justify-center -ml-1 active:scale-90 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="ml-3">
+          <p class="text-text-muted text-[10px] tracking-widest uppercase font-serif">Recipe Detail</p>
+          <h1 class="text-lg font-bold leading-tight truncate max-w-[200px]">{{ dish.name }}</h1>
+        </div>
       </div>
     </div>
 
@@ -130,7 +132,7 @@ function prevStep() {
             <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary text-sm flex items-center justify-center font-bold font-serif">
               {{ index + 1 }}
             </span>
-            <p class="text-sm leading-relaxed flex-1 pt-1">{{ step }}</p>
+            <p class="text-sm leading-relaxed flex-1 pt-1" style="white-space: pre-line">{{ step }}</p>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4B5A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-1.5"><path d="m9 18 6-6-6-6"/></svg>
           </button>
         </div>
@@ -170,7 +172,7 @@ function prevStep() {
           </div>
 
           <div class="flex-1 flex items-center justify-center p-8">
-            <p class="text-[28px] font-medium leading-relaxed text-center">
+            <p class="text-[28px] font-medium leading-relaxed text-center" style="white-space: pre-line">
               {{ dish.steps[fullscreenStep ?? 0] }}
             </p>
           </div>

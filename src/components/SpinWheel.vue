@@ -11,22 +11,16 @@ const emit = defineEmits<{
   (e: 'request-spin'): void
 }>()
 
-const MIN_SECTORS = 8
 const isSpinning = ref(false)
 const rotation = ref(0)
 
-const wheelDishes = computed(() => {
-  const list = props.dishes
-  if (list.length === 0) return []
-  if (list.length >= MIN_SECTORS) return list
-  const result: Dish[] = []
-  while (result.length < MIN_SECTORS) {
-    result.push(...list)
-  }
-  return result.slice(0, Math.max(MIN_SECTORS, list.length))
-})
+const wheelDishes = computed(() => props.dishes)
 
-const sectorAngle = computed(() => 360 / wheelDishes.value.length)
+const sectorAngle = computed(() => {
+  const count = wheelDishes.value.length
+  if (count === 0) return 0
+  return 360 / count
+})
 const colors = [
   '#D4652A', '#C17F4E', '#D4855A', '#C46B3A',
   '#B87333', '#CD7F32', '#D4652A', '#B8692A',
@@ -55,21 +49,46 @@ function getIndexByDishId(id: string): number {
   return wheelDishes.value.findIndex((d) => d.id === id)
 }
 
-function getSectorStyle(index: number) {
-  const angle = sectorAngle.value
-  return {
-    transform: `rotate(${index * angle}deg)`,
-    clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.sin((angle * Math.PI) / 180)}% ${50 - 50 * Math.cos((angle * Math.PI) / 180)}%)`,
-    backgroundColor: colors[index % colors.length],
-  }
+function getColorForDish(dishId: string): string {
+  const originalIndex = props.dishes.findIndex((d) => d.id === dishId)
+  return colors[(originalIndex >= 0 ? originalIndex : 0) % colors.length]
 }
+
+const wheelStyle = computed(() => {
+  const style: Record<string, string> = {
+    transform: `rotate(${rotation.value}deg)`,
+    transition: isSpinning.value ? 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none',
+  }
+  const count = wheelDishes.value.length
+  if (count === 0) return style
+  if (count === 1) {
+    style.backgroundColor = getColorForDish(wheelDishes.value[0].id)
+    return style
+  }
+  const stops: string[] = []
+  let current = 0
+  for (let i = 0; i < count; i++) {
+    const next = current + sectorAngle.value
+    const color = getColorForDish(wheelDishes.value[i].id)
+    stops.push(`${color} ${current}deg, ${color} ${next}deg`)
+    current = next
+  }
+  style.background = `conic-gradient(from 0deg, ${stops.join(', ')})`
+  return style
+})
 
 function getLabelStyle(index: number) {
   const angle = sectorAngle.value
-  const midAngle = (index * angle + angle / 2) * (Math.PI / 180)
-  const radius = 36
+  const count = wheelDishes.value.length
+  const radius = count <= 2 ? 30 : 36
+  let midAngle: number
+  if (count === 1) {
+    midAngle = 0
+  } else {
+    midAngle = (index * angle + angle / 2) * (Math.PI / 180)
+  }
   return {
-    transform: `translate(-50%, -50%) rotate(${angle / 2}deg)`,
+    transform: `translate(-50%, -50%)`,
     left: `${50 + radius * Math.sin(midAngle)}%`,
     top: `${50 - radius * Math.cos(midAngle)}%`,
   }
@@ -91,35 +110,18 @@ defineExpose({ spin, getIndexByDishId })
     <!-- Wheel -->
     <div
       class="w-full h-full rounded-full relative overflow-hidden border-[6px] border-white shadow-elegant-lg"
-      :style="{ transform: `rotate(${rotation}deg)`, transition: isSpinning ? 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none' }"
+      :style="wheelStyle"
     >
-      <!-- Sectors -->
-      <div
-        v-for="(_dish, index) in wheelDishes"
-        :key="index"
-        class="absolute w-full h-full origin-bottom-right"
-        :style="getSectorStyle(index)"
-      ></div>
-
-      <!-- Divider lines -->
-      <div class="absolute inset-0">
-        <div
-          v-for="i in wheelDishes.length"
-          :key="`line-${i}`"
-          class="absolute top-0 left-1/2 w-[1px] h-1/2 bg-white/20 origin-bottom"
-          :style="{ transform: `translateX(-50%) rotate(${(i - 1) * sectorAngle}deg)` }"
-        ></div>
-      </div>
-
       <!-- Labels -->
       <div class="absolute inset-0">
         <div
           v-for="(dish, index) in wheelDishes"
           :key="`label-${index}`"
-          class="absolute text-[11px] font-bold text-white/90 whitespace-nowrap origin-center tracking-wide"
+          class="absolute text-[9px] font-bold text-white/90 text-center overflow-hidden text-ellipsis whitespace-nowrap leading-tight"
+          style="max-width: 60px"
           :style="getLabelStyle(index)"
         >
-          {{ dish.name.slice(0, 3) }}
+          {{ dish.name }}
         </div>
       </div>
 

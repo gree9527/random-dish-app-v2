@@ -29,7 +29,7 @@ body {
 }
 
 /* Safe area for notched phones */
-.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-top { padding-top: max(env(safe-area-inset-top), 24px); }
 .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
 .tab-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.75rem); }
 
