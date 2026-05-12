@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useDishStore } from '../stores/dishStore'
 import { useCamera } from '../composables/useCamera'
 import { useFilesystem } from '../composables/useFilesystem'
@@ -24,6 +24,8 @@ const photoPath = ref('')
 const thumbPath = ref('')
 const isLoading = ref(false)
 const fileInputRef = ref<HTMLInputElement>()
+const isSaving = ref(false)
+const originalSnapshot = ref('')
 
 onMounted(() => {
   if (editingDish.value) {
@@ -35,6 +37,13 @@ onMounted(() => {
     photoPath.value = editingDish.value.imagePath
     thumbPath.value = editingDish.value.thumbnailPath
   }
+  originalSnapshot.value = JSON.stringify({
+    name: name.value,
+    steps: steps.value,
+    categoryInput: categoryInput.value,
+    rating: rating.value,
+    photoPath: photoPath.value,
+  })
 })
 
 async function onTakePhoto() {
@@ -89,6 +98,8 @@ function onSave() {
     rating: rating.value,
   }
 
+  isSaving.value = true
+
   if (isEdit.value && editingDish.value) {
     const updateData: any = { ...input }
     const oldImagePath = editingDish.value.imagePath
@@ -104,6 +115,7 @@ function onSave() {
   } else {
     if (!photoPath.value) {
       alert('请添加一张照片')
+      isSaving.value = false
       return
     }
     const dish = store.addDish(input, photoPath.value, thumbPath.value)
@@ -114,17 +126,43 @@ function onSave() {
 function goBack() {
   router.back()
 }
+
+function hasUnsavedChanges(): boolean {
+  if (isSaving.value) return false
+  const current = JSON.stringify({
+    name: name.value,
+    steps: steps.value,
+    categoryInput: categoryInput.value,
+    rating: rating.value,
+    photoPath: photoPath.value,
+  })
+  return current !== originalSnapshot.value
+}
+
+onBeforeRouteLeave((_to, _from, next) => {
+  if (hasUnsavedChanges()) {
+    if (window.confirm('您有未保存的更改，确定要离开吗？')) {
+      next()
+    } else {
+      next(false)
+    }
+  } else {
+    next()
+  }
+})
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <div class="flex items-center px-5 h-16 border-b border-border/60 flex-shrink-0 bg-surface/80 backdrop-blur-md">
+    <div class="flex-shrink-0 safe-top bg-surface/80 backdrop-blur-md">
+      <div class="flex items-center px-5 h-16 border-b border-border/60">
       <button @click="goBack" class="w-9 h-9 rounded-full bg-paper flex items-center justify-center -ml-1 active:scale-90 transition-transform">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </button>
       <div class="ml-3">
         <p class="text-text-muted text-[10px] tracking-widest uppercase font-serif">{{ isEdit ? 'Edit Recipe' : 'New Recipe' }}</p>
         <h1 class="text-lg font-bold leading-tight">{{ isEdit ? '编辑菜谱' : '添加菜谱' }}</h1>
+      </div>
       </div>
     </div>
 

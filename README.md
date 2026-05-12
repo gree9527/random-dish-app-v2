@@ -54,6 +54,33 @@ npm run build
 
 构建产物输出到 `dist/` 目录，供 Capacitor 同步到原生工程。
 
+## GitHub Actions 自动打包 APK（推荐）
+
+无需本地安装 Android Studio / JDK / Android SDK，每次推送代码后由 CI 自动构建。
+
+### 配置
+
+仓库根目录已包含 `.github/workflows/build-apk.yml`，提交后会自动生效。
+
+### 使用流程
+
+```bash
+# 1. 修改代码
+# 2. 提交并推送
+git add .
+git commit -m "你的修改"
+git push
+```
+
+Push 后自动触发构建：
+
+1. 进入 GitHub 仓库 → **Actions** → 选择最新的 `Build APK` 工作流
+2. 等待构建完成（首次约 5-10 分钟，后续有缓存会更快）
+3. 在运行结果页底部找到 **Artifacts** → 下载 `app-debug.apk`
+4. 将 APK 发送到手机安装测试
+
+> **注意**：`android/` 目录未提交到 Git，CI 中每次 `npx cap add android` 会生成全新的默认 Android 工程。如需保留本地原生配置（如自定义 `AndroidManifest.xml`），请将 `android/` 目录纳入版本控制并移除 CI 中的 `npx cap add android` 步骤。
+
 ## Android 真机/模拟器调试
 
 ### 1. 添加 Android 平台（仅需执行一次）

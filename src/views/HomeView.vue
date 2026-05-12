@@ -45,7 +45,7 @@ function reSpin() {
 <template>
   <div class="h-full flex flex-col relative">
     <!-- Decorative top pattern -->
-    <div class="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+    <div class="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-secondary/40 to-transparent pointer-events-none"></div>
 
     <div class="flex-1 flex flex-col items-center justify-center px-5 relative">
       <div class="text-center mb-6">

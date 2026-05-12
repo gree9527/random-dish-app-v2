@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { computed } from 'vue'
+import { useSwipeBack } from './composables/useSwipeBack'
 
 const route = useRoute()
 const router = useRouter()
+
+useSwipeBack()
 
 const showTabBar = computed(() => {
   return ['home', 'list', 'settings'].includes(route.name as string)
