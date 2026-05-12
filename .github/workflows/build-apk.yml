@@ -44,23 +44,7 @@ jobs:
           echo "Setting versionName=$VERSION, versionCode=${{ github.run_number }}"
           sed -i "s/versionName \".*\"/versionName \"$VERSION\"/g" android/app/build.gradle
           sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/g" android/app/build.gradle
-          node -e "
-          const fs = require('fs');
-          const path = 'android/app/build.gradle';
-          let c = fs.readFileSync(path, 'utf8');
-          const signing = \`
-    signingConfigs {
-        release {
-            storeFile file('adminkey.jks')
-            storePassword 'adminkey'
-            keyAlias 'adminkey'
-            keyPassword 'adminkey'
-        }
-    }\`;
-          c = c.replace('buildTypes {', signing + '\n    buildTypes {');
-          c = c.replace(/buildTypes\s*\{\s*release\s*\{/, 'buildTypes {\n        release {\n            signingConfig signingConfigs.release');
-          fs.writeFileSync(path, c);
-          "
+          node .github/scripts/setup-signing.js
           grep -E "versionName|versionCode|signingConfig" android/app/build.gradle
 
       - name: Build Release APK
