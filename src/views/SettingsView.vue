@@ -6,12 +6,20 @@ import { useBackup } from '../composables/useBackup'
 const store = useDishStore()
 const backup = useBackup()
 
+const exporting = ref(false)
 const importing = ref(false)
 const fileInputRef = ref<HTMLInputElement>()
 
 async function onExport() {
-  const blob = await backup.exportBackup(store.dishes)
-  backup.downloadBackup(blob)
+  exporting.value = true
+  try {
+    await backup.shareBackup(store.dishes)
+    alert(`备份已保存到手机 Documents 文件夹\n文件名：今天吃什么-备份-xxxx.zip`)
+  } catch (err) {
+    alert('导出失败：' + (err as Error).message)
+  } finally {
+    exporting.value = false
+  }
 }
 
 function onPickImport() {
@@ -64,13 +72,14 @@ function onClearAll() {
         </div>
         <button
           @click="onExport"
-          class="w-full px-5 py-4 flex items-center justify-between text-left active:bg-paper/60 transition-colors"
+          :disabled="exporting"
+          class="w-full px-5 py-4 flex items-center justify-between text-left active:bg-paper/60 transition-colors disabled:opacity-50"
         >
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-full bg-secondary/60 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C17F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             </div>
-            <span class="text-sm font-medium">导出备份</span>
+            <span class="text-sm font-medium">{{ exporting ? '导出中...' : '导出备份' }}</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4B5A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
